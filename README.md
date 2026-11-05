@@ -1,94 +1,150 @@
-<<<<<<< HEAD
-# ExpiryGuard v3 - near-expiry stock intelligence platform for pharmacy chains
+# ExpiryGuard
 
-A multi-page web platform. **Each cycle a user uploads fresh sales + inventory files**, the platform validates them,
-forecasts demand, scores every batch for expiry risk, recommends transfers / returns / markdowns, and keeps a history so
-uploads can be compared over time.
+**Near-expiry stock intelligence for pharmacy chains.** ExpiryGuard predicts which medicine batches will *not* sell before they expire, then recommends the cheapest fix for each one: move it to a store that will sell it, return it to the distributor, or flag it for a markdown. It also works on the cause by capping over-ordering.
+
+![Command Center](docs/screenshots/command_center.png)
+
+> **All demo data is synthetic** (10 stores, 40 SKUs, ~2.5 years of simulated sales). The performance numbers below come from simulation and show that the *method* works under stated assumptions. They are **not** results from a real pharmacy chain. Run a pilot on your own data before relying on them.
+
+---
+
+## Why
+
+Pharmacies lose margin to stock that expires on the shelf, often while another store a few kilometres away is running short of the same product. Chains usually handle this by gut feeling or periodic audits. ExpiryGuard replaces that with a weekly, data-driven loop:
+
+**upload data → forecast demand → score every batch → recommend actions → approve and track them**
+
+## What you get
+
+| Area | Features |
+|---|---|
+| **Data** | Upload CSV/Excel with flexible column names, data-quality score, every cleaning action reported with counts, templates, two demo datasets |
+| **Analysis** | Per store × SKU demand forecast (120 days), probabilistic expiry-risk score for every batch, mixed-integer optimiser for transfers/returns, markdown studio |
+| **Decisions** | Transfer Planner (you choose the destination; every store is scored on sell-through, distance, cost), approve/reject recommendations, per-store pick-lists |
+| **Workflow** | Task Board (propose → approve → dispatch → receive, with comments and history), alerts, run history with "what changed since last upload" |
+| **Geography** | Map with risk bubbles, planned shipping lanes, radius search, store scorecards, editable store locations |
+| **What-if** | Scenario Lab (return terms, shipping cost, risk appetite, distance limits, blocked stores), sensitivity sweeps, ROI calculator |
+| **Teams** | Login, four roles, store-level restrictions, audit log, publishing an analysis for store staff |
+| **Interface** | Page transitions, linked focus across pages (store/category), lasso selection, animated charts (Expiry Clock, forecast reveal, plan replay), guided workflow |
+| **Reports** | Multi-sheet Excel workbook and HTML summary |
+
+Pages: Data Hub · Command Center · Alerts · Forecast Explorer · Risk Explorer · Action Center · Transfer Planner · Task Board · Geo Map · Markdown Studio · Scenario Lab · Business Case · Run History & Reports · Model Health · Admin Console.
+
+## Quick start
+
+Tested on Python 3.12.
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
-First launch asks you to **create the administrator account**. Then: **Data Hub** → *Try a demo dataset* → **Run analysis** (~15-30 s) →
-**Publish** so other users see it. Create users in **Admin Console**.
 
-## What's new in v3 - an animated, linked interface (everything from v1/v2 is unchanged)
-| Area | What you get |
-|---|---|
-| 🎞️ **Page-by-page movement** | Pages slide in **from the right when you move forward and from the left when you go back** (the direction follows the sidebar order). Cards rise in with a stagger, KPI cards lift on hover, buttons press down, the sidebar menu is a set of sliding pills, the header has a slow animated gradient. Honours the OS "reduce motion" setting |
-| 🔗 **Linked focus (multi-linked options)** | One global **store + category focus** bar on every page. Set it by picking in the bar, clicking a **store bar** (Command Center, Geo scorecards, Forecast comparison), clicking a **store on the map**, choosing a **category pill**, or with "🔗 Focus on this store" buttons. Every page then follows: Command Center charts filter, Risk Explorer filters pre-fill, Forecast Explorer jumps to the store and narrows the SKU list, Geo Map highlights and re-centres the radius, Transfer Planner pre-selects the source. "Open in →" buttons carry the focus to the next page. Your manual edits on a page are never overwritten unless the focus itself changes |
-| 🖱️ **Gestures** | **Lasso / box-select** bubbles in Risk Explorer - the table, KPIs and deep-dive narrow to your selection; click-to-focus on bars and map markers; hover tooltips; smooth chart transitions |
-| ▶️ **Animated charts** | **Expiry Clock** (Command Center): press Play to watch expected losses accumulate over 120 days by category (its last frame equals the dashboard's total); **Forecast reveal**: the forecast bars unfold week by week; **Plan replay** (Geo Map): the shipping network builds lane by lane |
-| 🧭 **Guided workflow** | A clickable stepper (Upload → Overview → Investigate → Decide → Plan → Track), Back/Next buttons on each step, and quick-action tiles on Command Center, Data Hub and Alerts |
-| 🔔 **Feedback** | Toasts for key actions; celebratory balloons when a task is completed |
+1. The first launch asks you to **create the administrator account**.
+2. **Data Hub → Try a demo dataset → Load demo dataset A → Run analysis** (about 15–30 s).
+3. Click **Publish** so other users see the analysis, then explore the Command Center.
+4. Load **demo dataset B** (30 days later), run it, and open **Run History & Reports** to see what changed between the two uploads.
 
-## What's new in v2 (all v1 features are unchanged)
-| Area | Features |
-|---|---|
-| 🔐 **Login & roles** | Accounts stored in SQLite; passwords are salted scrypt hashes; 5 failed sign-ins lock an account for 15 min; admins issue temporary passwords that must be changed at first sign-in. Roles: **Administrator**, **Manager** (approves tasks), **Analyst** (uploads/analyses/proposes, read-only on approvals), **Store staff** (sees only assigned stores). Role-filtered navigation, store-level data restrictions, full **audit log** (sign-ins, uploads, runs, publishes, task changes, location edits) with CSV export |
-| 🔀 **Transfer Planner** | *You* choose the destination. Pick a source store and batch; every other store is scored on sell-through probability, existing stock, safe capacity, distance, shipping cost and expected gain; split a batch across two stores; warnings for risky choices (blocked receiver, distance limit, over-capacity) need acknowledgement; raise the request in one click. Opens pre-filled from Action Center ("re-route") |
-| 🌍 **Geo Map** | Real interactive map (bubble size = loss / loss % / high-risk batches / days of cover / stock), planned transfer lanes, radius circle, nearby-store search with distances, distance matrix, **store scorecards** (rank, cover, units in/out) and an **Edit locations** tab - saved coordinates persist across uploads and switch shipping costs to real distances |
-| ✅ **Task Board** | Every approved move becomes a tracked task: Proposed → Approved → Dispatched → Completed (returns skip dispatch), with permissions per role/store, comments, history and CSV export. Duplicate active tasks are not created |
-| 🔔 **Alerts** | Personal digest: tasks waiting for you, batches expiring ≤14 days and likely unsold, already-expired stock - scoped to your stores |
-| 📢 **Publish** | Analysts publish an analysis; every user (incl. store staff who cannot upload) sees it automatically at sign-in |
-| ⚙️ **Planning constraints** | New Scenario Lab controls: max transfer distance, stores that may not receive / may not send transfers (closed, no cold chain) |
+User accounts, run history and published analyses are stored in `./workspace/` (override with the `EXPIRY_WORKDIR` environment variable). This folder is git-ignored; it contains password hashes.
 
-## Pages
-| Page | What the user can do |
-|---|---|
-| 🏠 **Data Hub** | Upload CSV/Excel (flexible column names), download templates, load demo data, see a data-quality score and every cleaning action, run the analysis |
-| 📊 **Command Center** | KPI cards, alerts (expired / expiring-soon), store × category risk heatmap, risk-band donut, expiry timeline, top-10 batches |
-| 🔮 **Forecast Explorer** | Pick any store × SKU: weekly history vs forecast with 80% interval, days of cover, stock-vs-demand imbalance across stores, seasonality |
-| ⚠️ **Risk Explorer** | Filter by store / category / urgency / probability; bubble chart; **batch deep-dive** showing the demand distribution and per-unit sell chances |
-| 🚚 **Action Center** | Approve/reject each recommendation, transfer-network map, per-store pick-lists, CSV export |
-| 🏷️ **Markdown Studio** | For units that cannot be moved/returned: best discount under a user-set elasticity, batch what-ifs, portfolio table |
-| 🧪 **Scenario Lab** | Change return credit, shipping cost, risk appetite; compare scenarios side by side; sensitivity sweeps; apply a profile globally |
-| 💰 **Business Case** | ROI / payback calculator (low-median-high from 5 simulated chains) + simulation evidence and ablation |
-| 🗂️ **Run History & Reports** | Saved runs, trend across uploads, "what changed" (cleared / still / newly high-risk), Excel + HTML reports |
-| 🩺 **Model Health** | Data quality, forecast backtest vs naive baselines, risk-score calibration reference, limitations |
-| 👥 **Admin Console** | Create/edit users, roles, store restrictions, reset passwords, audit log, published-analysis status |
+## Using your own data
 
-## Upload format
 | File | Required columns | Optional |
 |---|---|---|
-| Sales | `date, store, sku, units` | - |
+| Sales (daily) | `date, store, sku, units` | |
 | Inventory (today's stock) | `store, sku, expiry_date, quantity` | `batch_id` |
 | SKU master | `sku, unit_cost` | `category, unit_price` |
-| Store master | `store` | `lat, lon` (enables distance-based shipping cost) |
+| Store master | `store` | `lat, lon` (enables distance-based shipping cost and the map) |
 
-Aliases such as `qty`, `item_code`, `branch`, `mrp`, `lot_no` are recognised. Bad rows are dropped **and reported with counts**.
-12+ months of sales gives the ML model with seasonality; 45-364 days automatically falls back to a level + weekday model; <45 days is rejected.
+Aliases such as `qty`, `item_code`, `branch`, `mrp`, `lot_no` are recognised. Unusable rows are dropped **and reported with counts**.
+History drives the model: **12+ months** gives the ML forecast with seasonality, **45–364 days** falls back to a level + weekday model, and under 45 days is rejected. A forecast-accuracy backtest needs 18+ months.
 
-## Architecture
-`core/io.py` ingestion + validation → `core/forecast.py` (Poisson gradient boosting, or level model) → `core/risk.py` (FEFO + negative-binomial
-expiry probabilities) → `core/optimize.py` (mixed-integer programme, HiGHS) → `core/pipeline.py` (slow forecast stage is cached; fast plan stage re-runs
-instantly when settings change) → `views/*` pages. `core/report.py` builds Excel/HTML; `core/store.py` persists run history to `workspace/runs/`
-(override with `EXPIRY_WORKDIR`). `simulator/` regenerates demo data and holds the original validated simulation used for the Business Case evidence.
+## How it works
 
-## Verification
-* `python tests/test_linking.py` - **33 checks, all passing**: chart-selection sync (click, unchanged, de-select), focus pushed to widgets without overwriting user edits, category/store focus followed by Risk, Forecast, Geo and Planner pages, Clear, link buttons, stepper/Back/Next/tiles, slide direction, Expiry Clock total equals the dashboard total, plan-replay frames.
-* `python tests/test_app.py` - **56 headless end-to-end checks, all passing**: first-run setup, weak-password rejection, the original 24-step journey (every v1 page and
-  interaction), then the new features: planner → task creation → duplicate protection → Action Center hand-over → manager approval → map/nearby/location editing →
-  new scenario constraints → user creation → admin self-demotion blocked → publish → **restricted store employee** sign-in (forced password change, sees only permitted pages
-  and Store-01 data, can dispatch but not approve) → account lockout → audit-log coverage.
-* With default settings the v2 optimizer gives results identical to v1 (107 / 194 / 170 units, same estimated gain on demo A); a 10 km limit or blocked receivers change the plan as expected.
-* v1 checks retained: generic engine reproduces validated simulator results; messy-data cases (missing columns, bad dates, negative units, unknown SKUs, no coordinates, short history, single store).
+1. **Forecast.** Poisson gradient boosting (scikit-learn) predicts daily demand per store × SKU, directly for each of the next 120 days. Features: recent sales levels, store/SKU/category, calendar of the target day.
+2. **Risk score.** Stock sells first-expiry-first-out, so a batch is at risk when demand until *its* expiry cannot cover the stock queued ahead of it. With `C` = units up to and including the batch and `D` = demand until expiry (negative binomial): `P(expires unsold) = P(D ≤ C−1)` and `E[unsold units] = Σⱼ P(D ≤ C−j)`.
+3. **Optimise.** A small mixed-integer programme (SciPy/HiGHS) decides transfers and returns. Receivers may only take units they will sell with high probability, shipping has a fixed cost per lane, and returns follow distributor terms. Units with no cost-effective move are flagged for markdown review.
+4. **Order cap.** Weekly orders are trimmed so stock does not exceed ~90 days of forecast demand, with a guard against stock-outs.
 
-## Known limitations (read before deploying)
-* **The animations and click/lasso gestures are not visually verified.** No browser was available, so tests cover logic, state and figure construction (and CSS sanity: balanced rules, defined keyframes, matching selectors) but not how it looks or feels. Click-to-select on **map markers** and **bars** relies on Plotly/Streamlit selection events and could not be exercised for real; the focus bar, pills and buttons give an equivalent path for every link.
-* Streamlit cannot run page JavaScript, so there are no count-up number animations or drag-and-drop layouts. The sidebar pill highlight uses the CSS `:has()` selector (current Chrome, Edge, Safari and Firefox 121+).
-* **Not yet visually reviewed in a browser** - tested headlessly; check layout on your screens.
-* **Authentication is application-level, not enterprise-grade.** Serve over HTTPS; there is no SSO, MFA, e-mail password reset or session persistence (a browser refresh signs you out).
-  Data lives in one SQLite file plus a folder on one server - fine for a pilot or single-site deployment, not for high concurrency or multi-tenant use (one organisation per deployment).
-* The published analysis is a pickle file written only by the server for admin/manager/analyst; protect the `workspace/` folder like any credential store.
-* Map tiles load from the internet in the user's browser (choose the `white-bg` style for offline use). Distances are straight-line (haversine), not road distance.
-* Analysts are deliberately read-only on approvals and dispatch; this is a policy choice you can change in `core/tasks.py`.
-* Estimated gains are conservative per-unit lower bounds and are **not comparable across risk-appetite settings**.
-* Business Case numbers come from simulated chains (net gain positive in 5/5, 0.4-3.4% of baseline contribution). Run a pilot on real data.
-* Sales are used as demand (stock-outs hide true demand); promotions and launches are not modelled; discount response is a user assumption.
-* Transfers may be restricted by drug-licence / cold-chain rules; confirm with compliance. Return terms are assumptions you set.
-* Backtest/accuracy reporting needs 18+ months of history; with less, the over-dispersion parameter is assumed.
-=======
-# EXPIRY-GUIDE
-Developed a Streamlit-based pharmacy inventory management platform that uses machine learning to forecast product demand, identify expiry risks, and optimize stock transfers, returns, and markdowns. Implemented data validation, interactive dashboards, risk analysis, automated reporting to reduce inventory losses and improve stock management.
->>>>>>> fba24f3f040ad7f760de171229157c6c61a1ac3a
+## Results (simulation)
+
+All figures are from a 180-day replay of the same demand and opening stock with and without the system, on **simulated** chains (`simulator/`, `precomputed/`).
+
+| Seed 42 | Baseline | With ExpiryGuard |
+|---|---|---|
+| Expiry write-offs | ₹76,163 | ₹26,454 (−65%) |
+| Net contribution | ₹718,664 | ₹743,412 (+₹24,748, +3.4%) |
+| Fill rate | 99.32% | 99.30% |
+
+- **Five independent simulated chains:** write-offs fell 45–65%; net gain was positive in all five (0.4–3.4% of baseline contribution, median 1.6%). Seed 42 is the best case, so quote the range.
+- **The levers are complementary, not additive:** transfers + returns alone added ₹3,582, the order cap alone ₹6,902, both together ₹24,748. Without the cap the system returns stock at a loss and the chain re-buys it.
+- **Forecast:** 28-day error 32.7% vs 36.7% / 38.5% for naive baselines. It under-forecasts by about 6%.
+- **Risk scores:** AUC 0.974 on 1,520 held-out batches; scores are ~14% conservative in total (4,107 expected vs 3,612 actual unsold units).
+
+## Roles and security
+
+| Role | Can |
+|---|---|
+| Administrator | Everything, including users and the audit log |
+| Manager | All analysis; approves tasks |
+| Analyst | Upload, analyse, publish, propose tasks (read-only on approvals) |
+| Store staff | See only assigned stores; dispatch and receive their own stock |
+
+Passwords are salted scrypt hashes; five failed sign-ins lock an account for 15 minutes; admins issue temporary passwords that must be changed at first sign-in; sign-ins, uploads, publishes, task changes and location edits are written to an audit log.
+**This is application-level security, not enterprise-grade.** There is no SSO, MFA, e-mail reset or session persistence (a refresh signs you out). Data lives in one SQLite file, which suits a pilot or a single site. Serve it over HTTPS, and protect `workspace/` like a credential store (the published analysis is a pickle written only by the server).
+
+## Project structure
+
+```
+app.py, ui.py          Streamlit shell: login gate, navigation, linked focus, theme
+views/                 one module per page (+ anim.py: animated Plotly figures)
+core/                  UI-independent engine (no Streamlit imports)
+  io.py                ingestion + validation        forecast.py   Poisson GBM / level model
+  risk.py              FEFO expiry-risk scoring      optimize.py   transfer/return MILP
+  pipeline.py          forecast stage + plan stage   geo.py        distances, scorecards, transfer options
+  auth.py, db.py       users, roles, audit (SQLite)  tasks.py      task workflow
+  store.py, publish.py run history, published analysis   report.py  Excel / HTML reports
+simulator/             synthetic chain + demo-data generator (python simulator/make_demo_data.py)
+sample_data/           two demo uploads, 30 days apart
+precomputed/           simulation results shown on the Business Case page
+tests/                 headless end-to-end tests
+prototypes/            NiceGUI and Flet front ends on the same engine
+```
+
+## Tests
+
+```bash
+python tests/test_app.py        # 56 checks: login, roles, every page, planner, tasks, geo, publish, lockout, audit
+python tests/test_linking.py    # 33 checks: linked focus, selection sync, stepper/tiles, animations
+```
+
+Each takes a few minutes. Both drive the real app headlessly with Streamlit's `AppTest`, and both pass. They check logic, state and figure construction, **not appearance**. The Command Center and both prototypes were also reviewed in a real headless browser; the other pages have headless-test coverage only. Run the app and look at it.
+
+## UI prototypes
+
+[`prototypes/`](prototypes/README.md) contains two experimental front ends built on the same `core/` engine, to compare against Streamlit:
+
+- **NiceGUI**: full interactive Plotly (lasso select, click-to-focus), native direction-aware slide transitions. Verified in a real browser.
+- **Flet** (Flutter rendering): native animations and charts, no lasso. Partially verified.
+
+```bash
+pip install -r prototypes/requirements.txt
+python prototypes/nicegui_app.py     # http://127.0.0.1:8701
+python prototypes/flet_app.py        # http://127.0.0.1:8702
+```
+
+## Known limitations
+
+- Sales are used as demand, so stock-outs hide true demand and can cause under-forecasting. Promotions, launches and prescription-pattern shifts are not modelled.
+- Return terms, shipping costs and markdown response are **assumptions you set**; estimated gains are conservative per-unit lower bounds and are not comparable across risk-appetite settings.
+- Distances are straight-line, not road distance. Map tiles load from the internet in the user's browser (choose the `white-bg` style offline).
+- Inter-store transfers may be restricted by drug-licence, cold-chain or schedule-drug rules. Confirm with your compliance team. This is decision support, not medical or regulatory advice.
+- Streamlit re-runs the script on each interaction, so transitions are CSS-based and slightly less fluid than a native front end. The click-to-select gestures on map markers could not be exercised for real.
+- Not yet validated on real pharmacy data.
+
+## Ideas / roadmap
+
+Road-distance routing · SSO and a proper database for multi-site use · markdown elasticity learned from data · scheduled weekly runs with e-mail alerts · CI workflow running the tests · finishing the Flet prototype.
+
+## License
+
+No license has been chosen yet. Add one (for example MIT or Apache-2.0) before making the repository public; without a license, others have no permission to reuse the code.
