@@ -2,7 +2,7 @@
 
 **Near-expiry stock intelligence for pharmacy chains.** ExpiryGuard predicts which medicine batches will *not* sell before they expire, then recommends the cheapest fix for each one: move it to a store that will sell it, return it to the distributor, or flag it for a markdown. It also works on the cause by capping over-ordering.
 
-![Command Center](docs/screenshots/command_center.png)
+https://expiry-guide-bxmirp2kkkfvbxuvffqm9y.streamlit.app/
 
 > **All demo data is synthetic** (10 stores, 40 SKUs, ~2.5 years of simulated sales). The performance numbers below come from simulation and show that the *method* works under stated assumptions. They are **not** results from a real pharmacy chain. Run a pilot on your own data before relying on them.
 
