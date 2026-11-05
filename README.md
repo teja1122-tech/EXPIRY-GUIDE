@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ExpiryGuard v3 - near-expiry stock intelligence platform for pharmacy chains
 
 A multi-page web platform. **Each cycle a user uploads fresh sales + inventory files**, the platform validates them,
@@ -87,3 +88,7 @@ instantly when settings change) → `views/*` pages. `core/report.py` builds Exc
 * Sales are used as demand (stock-outs hide true demand); promotions and launches are not modelled; discount response is a user assumption.
 * Transfers may be restricted by drug-licence / cold-chain rules; confirm with compliance. Return terms are assumptions you set.
 * Backtest/accuracy reporting needs 18+ months of history; with less, the over-dispersion parameter is assumed.
+=======
+# EXPIRY-GUIDE
+Developed a Streamlit-based pharmacy inventory management platform that uses machine learning to forecast product demand, identify expiry risks, and optimize stock transfers, returns, and markdowns. Implemented data validation, interactive dashboards, risk analysis, automated reporting to reduce inventory losses and improve stock management.
+>>>>>>> fba24f3f040ad7f760de171229157c6c61a1ac3a
